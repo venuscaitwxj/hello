@@ -3,11 +3,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include "timing.h"
-#define N 1500 /* matrix size */
+#include <string.h>
+#include <omp.h>
+//#define N 1500 /* matrix size */
 
 int main (int argc, char *argv[]) 
 {
 int	i, j, k;
+int N = 1500;
 timing_t tstart, tend;
 double	a[N][N],           /* matrix A to be multiplied */
 	b[N][N],           /* matrix B to be multiplied */
@@ -46,7 +49,7 @@ double	a[N][N],           /* matrix A to be multiplied */
   int blockSize = N / 3;
   int iInner, kInner,jInner;
 
-  #pragma omp parallel shared(blockSize,a,b,c,N) private(i,j,k,iInner,kInner,kInner)
+  #pragma omp parallel shared(blockSize,a,b,c,N) private(i,j,k,iInner,kInner,jInner)
   #pragma omp for
   for (i = 0; i < N; i+=blockSize)
     for (k=0; k<N ; k+= blockSize)
@@ -54,7 +57,7 @@ double	a[N][N],           /* matrix A to be multiplied */
         for (iInner = i; iInner<j+blockSize; iInner+=1)     
           for (kInner = k ; kInner<k+blockSize; kInner++)
             for (jInner = j ; jInner<j+blockSize ; jInner++)
-              a[iInner][jInner] += b[iInner][kInner] *c[kInner][jInner];
+              c[iInner][jInner] += a[iInner][kInner] *b[kInner][jInner];
               //a[iInner+1][jInner] += b[iInner+1][kInner] *c[kInner][jInner];
 
 
