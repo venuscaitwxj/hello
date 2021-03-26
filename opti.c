@@ -5,12 +5,12 @@
 #include "timing.h"
 #include <string.h>
 #include <omp.h>
-//#define N 1500 /* matrix size */
+#define N 1500 /* matrix size */
 
 int main (int argc, char *argv[]) 
 {
 int	i, j, k;
-int N = 1500;
+//int N = 1500;
 timing_t tstart, tend;
 double	a[N][N],           /* matrix A to be multiplied */
 	b[N][N],           /* matrix B to be multiplied */
@@ -54,11 +54,11 @@ double	a[N][N],           /* matrix A to be multiplied */
   for (i = 0; i < N; i+=blockSize)
     for (k=0; k<N ; k+= blockSize)
       for (j = 0 ; j < N; j+=blockSize)   
-        for (iInner = i; iInner<j+blockSize; iInner+=1)     
+        for (iInner = i; iInner<j+blockSize; iInner+=2)     
           for (kInner = k ; kInner<k+blockSize; kInner++)
             for (jInner = j ; jInner<j+blockSize ; jInner++)
               c[iInner][jInner] += a[iInner][kInner] *b[kInner][jInner];
-              //a[iInner+1][jInner] += b[iInner+1][kInner] *c[kInner][jInner];
+              c[iInner+1][jInner] += a[iInner+1][kInner] *b[kInner][jInner];
 
 
   
