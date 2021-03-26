@@ -49,18 +49,24 @@ double	a[N][N],           /* matrix A to be multiplied */
   int blockSize = N / 15;
   int iInner, kInner,jInner;
 
-  #pragma omp parallel shared(blockSize,a,b,c,N) private(i,j,k,iInner,kInner,jInner)
+  #pragma omp parallel shared(blockSize,a,b,c,N) private(i,j,k,ii,kk,jj)
   #pragma omp for
-  for (i = 0; i < N; i+=blockSize)
-    for (k=0; k<N ; k+= blockSize)
-      for (j = 0 ; j < N; j+=blockSize)   
-        for (iInner = i; iInner<j+blockSize; iInner+=1)     
-          for (kInner = k ; kInner<k+blockSize; kInner++)
-            for (jInner = j ; jInner<j+blockSize ; jInner++)
-              c[iInner][jInner] += a[iInner][kInner] *b[kInner][jInner];
-              //c[iInner+1][jInner] += a[iInner+1][kInner] *b[kInner][jInner];
-
-
+  int blockSize = N / 15;
+  int ii,jj,kk;
+  for (ii = 0; ii < N; ii+=blockSize) {
+    for (kk = 0; kk < N; kk+=blockSize) {
+      for (jj = 0; jj < N; jj+=blockSize) {
+        for (i = ii; i < ii+blockSize; i++) {
+          for (k = kk; k < kk+blockSize; k++) {
+            for (j = jj; j < jj+blockSize; j++) {
+              c[i][j] += a[i][k]*b[k][j];
+              //c[i][j] += a[i][k+1]*b[k+1][j];
+            }
+          }
+        }
+      }
+    }
+  }
   
     get_time(&tend);
 
