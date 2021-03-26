@@ -4,13 +4,13 @@
 #include <time.h>
 #include "timing.h"
 #include <string.h>
-//#include <omp.h>
-#define N 1500 /* matrix size */
+#include <omp.h>
+//#define N 1500 /* matrix size */
 
 int main (int argc, char *argv[]) 
 {
 int	i, j, k;
-//int N = 1500;
+int N = 1500;
 timing_t tstart, tend;
 double	a[N][N],           /* matrix A to be multiplied */
 	b[N][N],           /* matrix B to be multiplied */
@@ -46,19 +46,19 @@ double	a[N][N],           /* matrix A to be multiplied */
 */
 
  //Blocking + unrolling innermost 2x
-  int blockSize = N / 15;
+  int blockSize = N / 3;
   int ii,jj,kk;
 
-  #pragma omp parallel shared(blockSize,a,b,c,N) private(i,j,k,ii,kk,jj)
-  #pragma omp for
+  //#pragma omp parallel shared(blockSize,a,b,c,N) private(i,j,k,ii,kk,jj)
+  //#pragma omp for
   for (ii = 0; ii < N; ii+=blockSize) {
     for (kk = 0; kk < N; kk+=blockSize) {
       for (jj = 0; jj < N; jj+=blockSize) {
-        for (i = ii; i < ii+blockSize; i++) {
+        for (i = ii; i < ii+blockSize; i+=2) {
           for (k = kk; k < kk+blockSize; k++) {
             for (j = jj; j < jj+blockSize; j++) {
               c[i][j] += a[i][k]*b[k][j];
-              //c[i][j] += a[i][k+1]*b[k+1][j];
+              c[i+1][j] += a[i+1][k]*b[k][j];
             }
           }
         }
@@ -73,9 +73,9 @@ double	a[N][N],           /* matrix A to be multiplied */
   printf("*****************************************************\n");
 
   double c_F = 0.0;
-  for (iInner=0; iInner<N; iInner++) {
-      for (jInner=0; jInner<N; jInner++) {
-          c_F += c[iInner][jInner] * c[iInner][jInner];
+  for (i=0; i<N; i++) {
+      for (j=0; j<N; j++) {
+          c_F += c[i][j] * c[i][j];
           //printf("%6.2f   ", c[i][j]);
       }
       //printf("\n");
