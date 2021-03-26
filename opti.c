@@ -4,7 +4,7 @@
 #include <time.h>
 #include "timing.h"
 #include <string.h>
-#include <omp.h>
+//#include <omp.h>
 #define N 1500 /* matrix size */
 
 int main (int argc, char *argv[]) 
@@ -46,7 +46,7 @@ double	a[N][N],           /* matrix A to be multiplied */
 */
 
  //Blocking + unrolling innermost 2x
-  int blockSize = N / 3;
+  int blockSize = N / 15;
   int iInner, kInner,jInner;
 
   #pragma omp parallel shared(blockSize,a,b,c,N) private(i,j,k,iInner,kInner,jInner)
@@ -54,11 +54,11 @@ double	a[N][N],           /* matrix A to be multiplied */
   for (i = 0; i < N; i+=blockSize)
     for (k=0; k<N ; k+= blockSize)
       for (j = 0 ; j < N; j+=blockSize)   
-        for (iInner = i; iInner<j+blockSize; iInner+=2)     
+        for (iInner = i; iInner<j+blockSize; iInner+=1)     
           for (kInner = k ; kInner<k+blockSize; kInner++)
             for (jInner = j ; jInner<j+blockSize ; jInner++)
               c[iInner][jInner] += a[iInner][kInner] *b[kInner][jInner];
-              c[iInner+1][jInner] += a[iInner+1][kInner] *b[kInner][jInner];
+              //c[iInner+1][jInner] += a[iInner+1][kInner] *b[kInner][jInner];
 
 
   
@@ -69,9 +69,9 @@ double	a[N][N],           /* matrix A to be multiplied */
   printf("*****************************************************\n");
 
   double c_F = 0.0;
-  for (i=0; i<N; i++) {
-      for (j=0; j<N; j++) {
-          c_F += c[i][j] * c[i][j];
+  for (iInner=0; iInner<N; iInner++) {
+      for (jInner=0; jInner<N; jInner++) {
+          c_F += c[iInner][jInner] * c[iInner][jInner];
           //printf("%6.2f   ", c[i][j]);
       }
       //printf("\n");
