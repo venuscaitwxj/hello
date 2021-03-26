@@ -47,12 +47,10 @@ double	a[N][N],           /* matrix A to be multiplied */
 
  //Blocking + unrolling innermost 2x
   int blockSize = N / 15;
-  int iInner, kInner,jInner;
+  int ii,jj,kk;
 
   #pragma omp parallel shared(blockSize,a,b,c,N) private(i,j,k,ii,kk,jj)
   #pragma omp for
-  int blockSize = N / 15;
-  int ii,jj,kk;
   for (ii = 0; ii < N; ii+=blockSize) {
     for (kk = 0; kk < N; kk+=blockSize) {
       for (jj = 0; jj < N; jj+=blockSize) {
