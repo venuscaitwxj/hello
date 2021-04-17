@@ -1,8 +1,6 @@
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
-from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
-from functools import reduce
 from pyspark.sql.types import *
 
 
@@ -26,35 +24,13 @@ avg_df = avg_df.withColumn('range',F.when((F.col("avg_rating") >= 0) & (F.col("a
     .when((F.col("avg_rating") >3) & (F.col("avg_rating") <= 4), 4)\
     .when((F.col("avg_rating") >4) & (F.col("avg_rating") <= 5), 5))
 
-# filtering
-range1 = avg_df.filter(avg_df.range == 1)
-range1Item = range1.select("movieid").rdd.flatMap(lambda x: x).collect()
 
-range2 = avg_df.filter(avg_df.range == 2)
-range2Item = range2.select("movieid").rdd.flatMap(lambda x: x).collect()
+## collect list
+df2 =avg_df.groupby("range").agg(F.collect_list("movieid").alias("movieidnames"))
 
-range3 = avg_df.filter(avg_df.range == 3)
-range3Item = range3.select("movieid").rdd.flatMap(lambda x: x).collect()
 
-range4 = avg_df.filter(avg_df.range == 4)
-range4Item = range4.select("movieid").rdd.flatMap(lambda x: x).collect()
-
-range5 = avg_df.filter(avg_df.range == 5)
-range5Item = range5.select("movieid").rdd.flatMap(lambda x: x).collect()
-
-#result dataframe
-
-columns = ["range","movieid"]
-Row1 = spark.createDataFrame([(1,range1Item)], columns)
-Row2 = spark.createDataFrame([(2,range2Item)], columns)
-Row3 = spark.createDataFrame([(3,range3Item)], columns)
-Row4 = spark.createDataFrame([(4,range4Item)], columns)
-Row5= spark.createDataFrame([(5,range5Item)], columns)
-
-Rows = [Row1,Row2,Row3,Row4,Row5]
-df_whole = reduce(DataFrame.unionAll, Rows)
-df_whole = df_whole.withColumn('movieid', F.col('movieid').cast(StringType()))
 
 #output
-df_whole.show()
+df2.show()
+#df2 = df2.withColumn('movieid', F.col('movieid').cast(StringType()))
 df_whole.repartition(1).write.csv("output")
