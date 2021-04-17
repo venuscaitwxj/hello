@@ -4,7 +4,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from functools import reduce
 from pyspark.sql.types import *
-import pandas as pd
+
 
 
 spark = SparkSession.builder.appName("Movie").master('local').getOrCreate()
@@ -53,7 +53,7 @@ Row5= spark.createDataFrame([(5,range5Item)], columns)
 
 Rows = [Row1,Row2,Row3,Row4,Row5]
 df_whole = reduce(DataFrame.unionAll, Rows)
-
+df_whole = df_whole.withColumn('movieid', F.col('movieid').cast(StringType()))
 
 #output
 df_whole.show()
