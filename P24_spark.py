@@ -27,10 +27,10 @@ avg_df = avg_df.withColumn('range',F.when((F.col("avg_rating") >= 0) & (F.col("a
 
 ## collect list
 df2 =avg_df.groupby("range").agg(F.collect_list("movieid").alias("movieidnames"))
-
+df2 = df2.withColumn("movieidnames",F.concat_ws(",",F.col("movieidnames")))
 
 
 #output
 df2.show()
-#df2 = df2.withColumn('movieid', F.col('movieid').cast(StringType()))
-df_whole.repartition(1).write.csv("output")
+
+df2.repartition(1).write.csv("output")
